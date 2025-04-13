@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-t#-*moxp8xfw#6a*hmm*zwe^08tm0+yjveuap)4wn6g+agz(j^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['projeto-integrador-ii-univesp.onrender.com','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['projeto-integrador-iii-univesp.onrender.com','localhost','127.0.0.1']
 
 
 # Application definition
