@@ -1,0 +1,270 @@
+<!-- Estoque Template (estoque.html) -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{% static 'geral/css/style.css' %}">
+{% endblock 'head' %}
+
+{% block 'body' %}
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=5uFfkLlK"></script>
+
+<body class="page-catalog">
+  <header class="bg-primary text-white py-2">
+    {% include 'navbar.html' %}
+  </header>
+
+  <div class="container-fluid">
+    <h1 class="mb-4" style="margin-top:50px;">Estoque de Produtos da Distribuidora em Itanhaém</h1>
+    <h3 class="mb-4">Selecione os produtos para a reserva:</h3>
+
+    <!-- Filtro de Subcategoria -->
+    <div class="mb-3">
+      <select id="subcategoriaFiltro" class="form-select">
+        <option value="">Todas as Subcategorias</option>
+        <option value="Paleta">Paleta</option>
+        <option value="Picolé Tradicional">Picolé Tradicional</option>
+        <option value="Picolé Especial">Picolé Especial</option>
+        <option value="Picolé Kids">Picolé Kids</option>
+        <option value="Massa 5 Litros">Massa 5 Litros</option>
+        <option value="Massa Açaí">Massa Açaí</option>
+        <option value="Massa Tradicional">Massa Tradicional</option>
+        <option value="Massa Especial">Massa Especial</option>
+        <option value="Pote Massa Açaí">Pote Massa Açaí</option>
+        <option value="Pote Massa Tradicional">Pote Massa Tradicional</option>
+        <option value="Pote Massa Especial">Pote Massa Especial</option>
+      </select>
+    </div>
+    
+    
+
+    <!-- Tabela de Estoque -->
+    <div class="row mb-3 table-responsive">
+      <div class="col-lg-8">
+        <table id="estoqueTable" class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Categoria</th>
+              <th>Subcategoria</th>
+              <th>Quantidade</th>
+              <th>Valor Unitário</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Produtos serão carregados dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+      <!-- Tabela de Produtos Selecionados -->
+      <div class="col-lg-4 table-responsive">
+        <h4 class="mb-4">Produtos Selecionados:</h4>
+        <table id="selecionadosTable" class="table table-striped table-sm mb-3">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Quantidade</th>
+              <th>Valor Total</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Produtos selecionados serão carregados aqui -->
+          </tbody>
+        </table>
+        
+        <!-- Exibir Total Geral dos Produtos Selecionados -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <strong>Total Geral:</strong>
+          <strong>R$ <span id="totalGeral">0,00</span></strong>
+        </div>
+        
+        <button class="btn btn-primary w-100" id="finalizarCompraBtn" style="border: 1px solid #004C22; box-shadow: 5px 5px #004C22;">Finalizar Reserva</button>
+      </div>
+    </div>
+  </div>
+
+  {% include 'footer.html' %}
+
+  <!-- Modal de Confirmação -->
+  <div class="modal fade" id="confirmacaoModal" tabindex="-1" aria-labelledby="confirmacaoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmacaoModalLabel">Confirmação de Pedido</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Você já tem um pedido em andamento. Tem certeza que quer realizar outro pedido?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+          <button type="button" class="btn btn-primary" id="confirmarCompraBtn">Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Inicializar DataTables
+      var table = $('#estoqueTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/2.0.7/i18n/pt-BR.json',
+        },
+        ajax: {
+          url: "{% url 'api_estoque' %}",
+          dataSrc: ''
+        },
+        columns: [
+          { data: 'codigo' },
+          { data: 'nome_produto' },
+          { data: 'categoria' },
+          { data: 'subcategoria' },
+          { 
+            data: 'quantidade', 
+            render: function(data, type, row) {
+              return '<input type="number" class="form-control form-control-sm quantity-picker" min="1" max="' + data + '" value="1">';
+            }
+          },
+          { 
+            data: 'valor',
+            render: function(data, type, row) {
+              return 'R$ ' + parseFloat(data).toFixed(2).replace('.', ',');
+            }
+          },
+          {
+            data: null,
+            className: "dt-center",
+            defaultContent: '<button class="btn btn-primary btn-sm add-to-cart">Adicionar</button>'
+          }
+        ]
+      });
+
+      // Filtro de Subcategoria
+$('#subcategoriaFiltro').on('change', function () {
+  table.column(3).search(this.value).draw();  // Filtra a coluna de subcategorias (coluna 3)
+});
+
+
+      // Produtos selecionados
+      var selectedTable = $('#selecionadosTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/2.0.7/i18n/pt-BR.json',
+        },
+        columns: [
+          { data: 'nome_produto' },
+          { 
+            data: 'quantidade', 
+            render: function(data, type, row) {
+              return '<input type="number" class="form-control form-control-sm selected-quantity" min="1" value="' + data + '">';
+            }
+          },
+          { 
+            data: 'valor',
+            render: function(data, type, row) {
+              return 'R$ ' + (data * row.quantidade).toFixed(2).replace('.', ',');
+            }
+          },
+          {
+            data: null,
+            className: "dt-center",
+            defaultContent: '<button class="btn btn-danger btn-sm remove-from-cart">Remover</button>'
+          }
+        ]
+      });
+
+      // Adicionar ao carrinho
+      $('#estoqueTable tbody').on('click', 'button.add-to-cart', function() {
+        var row = table.row($(this).parents('tr'));
+        var data = row.data();
+        var quantidade = $(this).parents('tr').find('.quantity-picker').val();
+        
+        if (quantidade > data.quantidade) {
+          alert('Erro: A quantidade selecionada excede a quantidade disponível em estoque.');
+        } else {
+          data.quantidade = quantidade;
+          selectedTable.row.add(data).draw();
+          updateCartTotal();
+        }
+      });
+
+      // Remover do carrinho
+      $('#selecionadosTable tbody').on('click', 'button.remove-from-cart', function() {
+        selectedTable.row($(this).parents('tr')).remove().draw();
+        updateCartTotal();
+      });
+
+      // Atualizar total do carrinho e exibir na seção de total geral
+      function updateCartTotal() {
+        var total = 0;
+        selectedTable.rows().data().each(function(value, index) {
+          total += parseFloat(value.valor) * value.quantidade;
+        });
+        $('#totalGeral').text(total.toFixed(2).replace('.', ','));
+      }
+
+      // Finalizar compra
+      $('#finalizarCompraBtn').on('click', function() {
+        if (selectedTable.rows().count() === 0) {
+          alert('Por favor, selecione ao menos um produto.');
+          return;
+        }
+        
+        var pedido = [];
+        selectedTable.rows().data().each(function(value, index) {
+          pedido.push({
+            nome_produto: value.nome_produto,
+            quantidade: value.quantidade,
+            valor_unitario: value.valor,
+            valor_total: (value.valor * value.quantidade).toFixed(2)
+          });
+        });
+
+        // Verificar se o lojista tem um pedido em andamento
+        $.get('{% url "verificar_pedido" %}', function(response) {
+          if (response.tem_pedido_em_andamento) {
+            $('#confirmacaoModal').modal('show');
+
+            $('#confirmarCompraBtn').on('click', function() {
+              enviarPedido(pedido, true);
+              $('#confirmacaoModal').modal('hide');
+            });
+          } else {
+            enviarPedido(pedido, false);
+          }
+        });
+      });
+
+      function enviarPedido(pedido, temPedidoEmAndamento) {
+        $.ajax({
+          type: 'POST',
+          url: '{% url "finalizar_compra" %}',
+          data: {
+            pedido: JSON.stringify(pedido),
+            tem_pedido_em_andamento: temPedidoEmAndamento,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          success: function(response) {
+            alert('Reserva finalizada com sucesso!');
+            selectedTable.clear().draw();
+            updateCartTotal();
+          },
+          error: function(error) {
+            alert('Erro ao finalizar a reserva.');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+{% endblock 'body' %}
+</html>

@@ -1,0 +1,60 @@
+:root {
+    --main-color: #008000;
+    --dark-color: #3509a6;
+    --contrast-color: #e8dfcc;
+  }
+  
+  .bg-color-dark {
+    background-color: var(--main-color);
+  }
+  
+  .p-bold {
+    font-weight: bold;
+  }
+  
+  .color-dark {
+    color: var(--dark-color);
+  }
+  
+  .card {
+    width: 300px;
+    height: 260px;
+    margin: auto;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    border: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  }
+  
+  .card-header {
+    background-color: transparent;
+    border: 0;
+  }
+  
+  .small-message {
+    font-size: 0.75rem; /* Reduz o tamanho da fonte das mensagens */
+    color: var(--dark-color); /* Utiliza a cor escura para o texto */
+    max-width: 15%;
+    padding: 0.10rem;
+  }
+  
+  .message-container {
+    max-width: 80%; /* Limita a largura máxima do contêiner da mensagem */
+    margin: 0.5rem auto; /* Ajusta a margem para centralizar e reduzir o espaço */
+    padding: 0.25rem; /* Padding reduzido para manter o conteúdo compacto */
+    font-size: 0.75rem; /* Tamanho de fonte menor para o texto dentro do contêiner */
+    color: var(--dark-color); /* Cor escura definida para o texto das mensagens */
+  }
+  
+  
+  .input-group-text, .form-control, .btn {
+    font-size: 0.8rem; /* Ajusta o tamanho da fonte para os elementos do form */
+  }
+  
+  .img-logo {
+    width: 50%; /* Reduz o tamanho do logo dentro do card */
+  }

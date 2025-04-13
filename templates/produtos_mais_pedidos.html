@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'head' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+      font-family: 'Arial', sans-serif;
+  }
+  .chart-container {
+      width: 60%; /* Tamanho do gráfico */
+      margin: auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.8); /* Fundo branco com mais transparência */
+      border: 1px solid #ddd;
+      border-radius: 50px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      margin-top: 2rem; /* Margem extra no topo para afastar do cabeçalho */
+  }
+  h1 {
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-align: center;
+      color: #004C22;
+      margin-bottom: 1rem;
+  }
+  .container-fluid {
+      padding-top: 3rem; /* Espaço adicional abaixo da barra de navegação */
+  }
+</style>
+{% endblock 'head' %}
+
+{% block 'body' %}
+<body>
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=5uFfkLlK"></script>
+  <body class="page-catalog">
+    <header class="bg-primary text-white py-2">
+      {% include 'navbar.html' %}
+    </header>
+
+    <div class="container-fluid">
+      <div class="chart-container">
+        <canvas id="produtosMaisPedidosGeral"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="produtosMaisPedidosUsuario"></canvas>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico Geral - Barra
+        var ctxGeral = document.getElementById('produtosMaisPedidosGeral').getContext('2d');
+        var produtosGeral = JSON.parse('{{ produtos_geral|escapejs }}');
+        var quantidadesGeral = JSON.parse('{{ quantidades_geral|escapejs }}');
+
+        new Chart(ctxGeral, {
+          type: 'bar',  // Tipo de gráfico "bar" (barras)
+          data: {
+            labels: produtosGeral,
+            datasets: [{
+              label: 'Produtos Mais Vendidos - Geral',
+              data: quantidadesGeral,
+              backgroundColor: 'rgba(0, 128, 0)',  // Aumentada a transparência
+              borderColor: 'rgba(219, 130, 42)',
+              borderWidth: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: false  // Oculta a legenda
+              },
+              tooltip: {
+                enabled: true
+              },
+              title: {  // Título do gráfico
+                display: true,
+                text: 'Top 5 Produtos Mais Vendidos - Em Geral',
+                font: {
+                  size: 18
+                },
+                padding: {
+                  top: 10,
+                  bottom: 20
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: false,
+                  text: 'Quantidade'
+                }
+              },
+            }
+          }
+        });
+
+        // Gráfico por Usuário - Doughnut
+        var ctxUsuario = document.getElementById('produtosMaisPedidosUsuario').getContext('2d');
+        var produtosUsuario = JSON.parse('{{ produtos_usuario|escapejs }}');
+        var quantidadesUsuario = JSON.parse('{{ quantidades_usuario|escapejs }}');
+
+        new Chart(ctxUsuario, {
+          type: 'doughnut',
+          data: {
+            labels: produtosUsuario,
+            datasets: [{
+              label: 'Produtos Mais Vendidos - Lojista',
+              data: quantidadesUsuario,
+              backgroundColor: [
+                'rgba(255, 159, 64, 0.9)',  // Aumentada a transparência
+                'rgba(153, 102, 255, 0.9)',
+                'rgba(75, 192, 192, 0.9)',
+                'rgba(255, 206, 86, 0.9)',
+                'rgba(54, 162, 235, 0.9)'
+              ],
+              borderColor: [
+                'rgba(255, 159, 64, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(54, 162, 235, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                enabled: true
+              },
+              title: {  // Título do gráfico
+                display: true,
+                text: 'Top 5 Produtos Mais Vendidos - Por Lojista',
+                font: {
+                  size: 25
+                },
+                padding: {
+                  top: 10,
+                  bottom: 30
+                }
+              }
+            }
+          }
+        });
+      });
+    </script>
+</body>
+{% endblock %}
