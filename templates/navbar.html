@@ -1,208 +1,55 @@
 {% load static %}
 
-<style>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background:#008000;">
+  <div class="container-fluid">
 
-  :root {
-    --primary-color: #008000;    /* Verde, como cor principal */
-    --dark-green: #004c22; /* verde escuro */
-    --secondary-color: #fff;  /* Amarelo, como cor secundária */
-  }
-
-
-  
-  
-    .navbar-mobile{
-    display: none;
-   }
-    .navbar-desktop{
-   
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: fit-content;
-      z-index: 9999;
-      width: 100%;
-      background-color: var(--primary-color);
-      padding: 0.5rem 1rem;   
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;    
-      max-height: 4em;   
-      border-bottom: 0px solid var(--dark-green);
-      margin-bottom: 1em;      
-    }
-  
-    .nav-logo-wrap{    
-      height: auto;
-      width: fit-content;       
-    }
-  
-    .nav-logo-img{
-      width: 50px; /* Tamanho da imagem */
-      height: fit-content;
-      border-radius: 50%; /* Deixa a imagem circular */
-    }
-  
-    .nav-items {  
-      padding: 0;  
-      width: 30%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;   
-     
-      
-    }
-  
-    .nav-item {       
-      list-style: none;
-      text-decoration: none;      
-    }
-  
-    .nav-link {
-      width: 100px;
-      text-align: center;
-      line-height: 1.5em;
-      text-decoration: none;
-      font-size: 1em;
-      border-radius: 25%;
-    }
-  
-   .nav-link:focus, .nav-link:hover {
-    color: var(--primary-color);
-    background-color: var(--secondary-color);
-    font-weight: bold;
-  }
-  
-    .mais-vendidos-img{
-      width: 50px; /* Tamanho da imagem */
-      height: auto;
-      border-radius: 50%; /* Deixa a imagem circular */
-    }
-  
-    /*Estilo para a barra de navegação mobile*/
-  
-    @media screen and (max-width:768px ){
-      .navbar-desktop{
-         display: none;
-  }
-  
-     
-      .navbar-mobile{
-         position:fixed;
-         z-index: 9999;        
-         top: 0;
-         
-         left: 0;
-         background: var(--dark-green);
-         display: block;
-         width: 100%;
-  }
-      .nav-logo-wrap, .nav-logo-img{
-        cursor: pointer;       
-      }
-
-      
-      .img-icons{
-        display: flex;
-        justify-content: space-between;
-        margin: 0 2em;
-      }
-
-      .menu-mobile-icon{
-        width: 50px;        
-       
-      }
-
-      .nav-logo-wrap{
-        width: 60px;
-      }
-
-      .nav-logo-img{
-        width: 100%;
-      }
-
-      .nav-logo-img {
-        width: 100%;
-        border-radius: 0%;
-      }
-  
-  
-      .nav-items{
-        display: block;     
-        color: var(--primary-color);
-        background-color: #fff;
-        width: 100%;
-      }
-  
-      .nav-link{  
-        width: 100%;  
-        margin: 0 auto;
-        font-size: 1.5em;
-      }
-
-      .nav-link:hover{
-        border-radius: 0%;
-        border-bottom: 2px solid var(--dark-green);
-      }
-  
-      .nav-mobile-items{
-        display: none;
-      }
-  
-  
-    } 
-  
-  
-  
-  </style>
-  <nav class="navbar-desktop">
-      <img  class="nav-logo-img" src="{% static 'home/img/logo-frutos-de-goias.png' %}"  alt="Logo"/>
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+      <img src="{% static 'home/img/logo-frutos-de-goias.png' %}" alt="Frutos" width="48" height="48"
+           class="rounded-circle">
     </a>
-    <ul class="nav-items">
-      <li class="nav-item" ><a class="nav-link" href="{% url 'estoque' %}" >Estoque</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'pedidos' %}" >Pedidos</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'produtos_mais_pedidos' %}">Produtos Mais Pedidos</a></li>
-      <li class="nav-item"><a class="nav-link" href="/home/sair/" >Sair</a>
-    </ul>
-      <img class="mais-vendidos-img" src="{% static 'lojistas/img/arara-frutos.png' %}" alt="Logo"/>
-    </a>
-  </nav>
-  
-  
-  <!--nav-mobile-->
-  <nav class="navbar-mobile">
-    <div class="img-icons">
-    <a class="nav-logo-wrap" href="{% url 'index' %}" >
-      <img  class="nav-logo-img" src="{% static 'home/img/logo-frutos-de-goias.png' %}"  alt="Logo"/>
-    </a>
-  
-    <div class="menu-mobile-icon">
-      <img  class="nav-logo-img" src="{% static 'lojistas/img/menu-mobile-white.png' %}"  alt="abrir menu"/>
+
+    <!-- botão hamburguer -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navFrutos" aria-controls="navFrutos"
+            aria-expanded="false" aria-label="Alternar navegação">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- itens -->
+    <div class="collapse navbar-collapse" id="navFrutos">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'estoque' %}">Estoque</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="dropEst"
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Estatísticas
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropEst">
+            <li><a class="dropdown-item"
+                   href="{% url 'produtos_mais_pedidos' %}">Produtos mais vendidos</a></li>
+            <li><a class="dropdown-item"
+                   href="{% url 'grafico_evolucao_pedidos' %}">Evolução de pedidos</a></li>
+            <li><a class="dropdown-item"
+                   href="{% url 'tabela_pedidos' %}">Tabela de pedidos</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'minhas_recomendacoes' %}">
+            Sugestões de pedido
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/home/sair/">Sair</a>
+        </li>
+      </ul>
+
+      <!-- Arara decorativa (oculta em XS se quiser) -->
+      <img src="{% static 'lojistas/img/arara-frutos.png' %}" alt="arara"
+           width="56" height="56" class="d-none d-lg-block ms-3">
     </div>
-    </div><!--img-icons-->
-  
-    <ul class="nav-items nav-mobile-items">
-      <li class="nav-item" ><a class="nav-link" href="{% url 'estoque' %}" >Estoque</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'pedidos' %}" >Pedidos</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'produtos_mais_pedidos' %}">Produtos Mais Pedidos</a></li>
-      <li class="nav-item"><a class="nav-link" href="/home/sair/" >Sair</a></li>
-    </ul>   
-    </nav>
-    
-    <script>
-      let isOpen = false
-      let menuButton = document.querySelector('.menu-mobile-icon');
-      let menuMobile = document.querySelector('.nav-mobile-items');
-
-      menuButton.addEventListener('click', function(){
-        if(isOpen){
-          menuMobile.style.display = "none";
-          isOpen = false;
-        }else{
-          menuMobile.style.display = "block";
-          isOpen = true;
-        }
-      })
-    </script>
-   
-  
+  </div>
+</nav>

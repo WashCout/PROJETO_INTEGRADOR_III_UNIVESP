@@ -192,4 +192,11 @@ td {
 }
 
 
+nav.navbar,
+.navbar-dark {
+    z-index: 11000 !important;            /* barra */
+}
 
+.dropdown-menu {
+    z-index: 11100 !important;            /* submenu */
+}

@@ -1,44 +1,104 @@
+// static/js/estoque.js
 document.addEventListener('DOMContentLoaded', function () {
-    const cartButton = document.querySelector('.cart-button');
-    const cartDrawerOverlay = document.querySelector('.cart-drawer__overlay');
-    const cartDrawerCloseButton = document.querySelector('.cart-drawer__header .btn-close');
 
-    cartButton.addEventListener('click', () => {
-        cartDrawerOverlay.classList.add('open');
+    /* ---------- CONFIG BÁSICA DATATABLES ---------- */
+    const estoqueTable = $('#estoqueTable').DataTable({
+      language : { url:'//cdn.datatables.net/plug-ins/2.0.7/i18n/pt-BR.json' },
+      ajax     : { url: ESTOQUE_API_URL, dataSrc:'' },
+      columns  : [
+        { data:'codigo' },
+        { data:'nome_produto' },
+        { data:'categoria' },
+        { data:'subcategoria' },
+        /* ▸ Coluna “Disponível” ---------------------- */
+        { data:'quantidade' },
+        /* ▸ Picker de quantidade a reservar ---------- */
+        { data:null, render:(d,t,r)=>`
+            <input type="number"
+                   class="form-control form-control-sm quantity-picker"
+                   min="1" max="${r.quantidade}" value="1">`
+        },
+        /* ▸ Valor unitário --------------------------- */
+        { data:'valor', render:(d)=>`R$ ${parseFloat(d).toFixed(2).replace('.',',')}` },
+        /* ▸ Botão Adicionar -------------------------- */
+        { data:null, className:'dt-center',
+          defaultContent:'<button class="btn btn-success btn-sm add-to-cart">Add</button>' }
+      ]
     });
-
-    cartDrawerCloseButton.addEventListener('click', () => {
-        cartDrawerOverlay.classList.remove('open');
+  
+    /* ---------- FILTRO SUBCATEGORIA --------------- */
+    document.getElementById('subcategoriaFiltro').addEventListener('change', e=>{
+        estoqueTable.column(3).search(e.target.value).draw();
     });
-
-    cartDrawerOverlay.addEventListener('click', (event) => {
-        if (event.target === cartDrawerOverlay) {
-            cartDrawerOverlay.classList.remove('open');
+  
+    /* ---------- TABELA DE SELECIONADOS ------------ */
+    const carrinhoTable = $('#selecionadosTable').DataTable({
+      language : { url:'//cdn.datatables.net/plug-ins/2.0.7/i18n/pt-BR.json' },
+      ordering : false,
+      searching: false,
+      paging   : false,
+      columns  : [
+        { data:'nome_produto' },
+        { data:'quantidade',
+          render:(d)=>`<input type="number" class="form-control form-control-sm selected-qty" min="1" value="${d}">`
+        },
+        { data:null, render:(d)=>`R$ ${(d.valor*d.quantidade).toFixed(2).replace('.',',')}` },
+        { data:null, className:'dt-center',
+          defaultContent:'<button class="btn btn-danger btn-sm remove-from-cart">❌</button>' }
+      ]
+    });
+  
+    /* ---------- ADICIONAR AO CARRINHO ------------- */
+    $('#estoqueTable tbody').on('click','button.add-to-cart',function(){
+        const linha = estoqueTable.row($(this).closest('tr'));
+        const info  = linha.data();
+        const qtd   = $(this).closest('tr').find('.quantity-picker').val()*1;
+  
+        if(qtd>info.quantidade){
+          return alert('Quantidade selecionada excede o estoque disponível.');
         }
+  
+        /* empurra para carrinho */
+        carrinhoTable.row.add({...info, quantidade:qtd}).draw();
+        atualizarTotal();
     });
-
-    const catalogGrid = document.querySelector('.catalog-grid');
-    const products = [
-        // Example products
-        { title: 'Produto 01', price: 'R$ 9,99', image: 'https://via.placeholder.com/300/f5f5f5/999999/?text=Produto+01' },
-        { title: 'Produto 02', price: 'R$ 19,99', image: 'https://via.placeholder.com/300/f5f5f5/999999/?text=Produto+02' },
-        // Add more products as needed
-    ];
-
-    products.forEach(product => {
-        const colDiv = document.createElement('div');
-        colDiv.className = 'col';
-        const productCard = document.createElement('div');
-        productCard.className = 'product-card card h-100';
-        productCard.innerHTML = `
-            <img src="${product.image}" class="product-card__img img-fluid" alt="${product.title}">
-            <div class="card-body">
-                <h5 class="product-card__title card-title">${product.title}</h5>
-                <p class="product-card__price card-text">${product.price}</p>
-                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#quick-add-to-cart">Adicionar</button>
-            </div>
-        `;
-        colDiv.appendChild(productCard);
-        catalogGrid.appendChild(colDiv);
+  
+    /* ---------- REMOVER DO CARRINHO --------------- */
+    $('#selecionadosTable tbody').on('click','button.remove-from-cart',function(){
+        carrinhoTable.row($(this).closest('tr')).remove().draw();
+        atualizarTotal();
     });
-});
+  
+    /* ---------- ATUALIZAR TOTAL GERAL ------------- */
+    function atualizarTotal(){
+      let total=0;
+      carrinhoTable.rows().every(function(){
+          const d=this.data();
+          total += d.quantidade * d.valor;
+      });
+      document.getElementById('totalGeral').textContent =
+          total.toFixed(2).replace('.',',');
+    }
+  
+    /* ---------- FINALIZAR RESERVA ----------------- */
+    document.getElementById('finalizarCompraBtn').addEventListener('click',()=>{
+        if(!carrinhoTable.rows().count()){ return alert('Escolha ao menos 1 item.'); }
+  
+        const pedido = carrinhoTable.rows().data().toArray().map(p=>({
+            nome_produto : p.nome_produto,
+            quantidade   : p.quantidade,
+            valor_unitario : p.valor,
+            valor_total    : (p.quantidade*p.valor).toFixed(2)
+        }));
+  
+        $.post(FINALIZAR_URL,{
+            csrfmiddlewaretoken: CSRF_TOKEN,
+            pedido: JSON.stringify(pedido),
+            tem_pedido_em_andamento:false
+        })
+        .done(()=>{ alert('Reserva enviada!'); carrinhoTable.clear().draw(); atualizarTotal(); })
+        .fail(()=>{ alert('Erro ao enviar reserva.'); });
+    });
+  
+  });
+  

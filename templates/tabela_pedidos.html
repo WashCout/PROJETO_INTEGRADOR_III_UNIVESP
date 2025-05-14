@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+    .container-tabela {
+        width: 90%;
+        margin: 2rem auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  
+    h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #004c22;
+    }
+  
+    table.dataTable thead {
+        background-color: #004c22;
+        color: white;
+    }
+  
+    table.dataTable tbody td {
+        color: #004c22; /* Cor do texto */
+    }
+  
+    table.dataTable {
+        font-size: 1em;
+        width: 100%;
+    }
+
+    .dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter label, .paginate_button {
+        color: #222 !important;
+    }
+  
+    /* Estilo para os botões de navegação da tabela */
+    .paginate_button {
+        background-color: #eaeaea !important;
+        border-radius: 6px;
+        padding: 4px 10px;
+        margin: 2px;
+        border: none;
+    }
+  
+    .paginate_button.current {
+        background-color: #004c22 !important;
+        color: white !important;
+        font-weight: bold;
+    }
+  </style>
+  
+{% endblock %}
+
+{% block 'body' %}
+{% include 'navbar.html' %}
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=z1OEV896"></script>
+
+<div class="container-tabela">
+  <h2>Todos os Pedidos Realizados</h2>
+  <table id="tabelaPedidos" class="display">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Quantidade</th>
+        <th>Valor Unitário (R$)</th>
+        <th>Valor Total (R$)</th>
+        <th>Data</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>{{ pedido.produto }}</td>
+        <td>{{ pedido.quantidade }}</td>
+        <td>{{ pedido.valor_unitario }}</td>
+        <td>{{ pedido.valor_total }}</td>
+        <td>{{ pedido.data }}</td>
+        <td>{{ pedido.status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#tabelaPedidos').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+        }
+    });
+  });
+</script>
+{% endblock %}

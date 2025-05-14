@@ -1,4 +1,13 @@
 {% load static %}
+{% if messages %}
+  <div class="container mt-2">
+    {% for message in messages %}
+      <div class="alert {{ message.tags }} text-center">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 <!doctype html>
 <html lang="pt-br">
   <head>

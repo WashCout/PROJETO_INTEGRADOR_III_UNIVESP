@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'home',
     'lojistas',
+    'recomendacoes',
 ]
 
 MIDDLEWARE = [
@@ -81,10 +82,10 @@ WSGI_APPLICATION = 'Gestor_Pedidos_Frutos.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestorfg_vezq',  # Nome do banco de dados
-        'USER': 'gestorfg_vezq_user',  # Nome de usuário
-        'PASSWORD': 'ZE0F5scXZRapN9V801DtZDzTCJfhVn2B',  # Senha
-        'HOST': 'dpg-cvt9sl3uibrs73dgg6j0-a.oregon-postgres.render.com',  # Host externo
+        'NAME': 'gestorpfg',  # Nome do banco de dados
+        'USER': 'gestorpfg_user',  # Nome de usuário
+        'PASSWORD': 'YzLcmlYUZG8Y9wGOwNMgEcDGlRYGuPlC',  # Senha
+        'HOST': 'dpg-d0hqtlp5pdvs73e73jug-a.oregon-postgres.render.com',  # Host externo
         'PORT': '5432',  # Porta padrão do PostgreSQL
     }
 }

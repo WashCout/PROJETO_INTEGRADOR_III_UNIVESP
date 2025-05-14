@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+      <style>
+        :root{
+            --verde: #008000;        /* cor principal */
+            --verde-escuro:#004c22;  /* cabeçalhos/títulos */
+            --offwhite:#fefefe;
+        }
+      
+        /* --- plano de fundo geral --- */
+        body{
+            background: var(--verde);          /* verde padrão */
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+      
+        /* cabeçalho da página */
+        .titulo-recomendacoes{
+            color: var(--offwhite);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem;
+            text-align: center;
+        }
+      
+        /* caixa de linguagem-natural */
+        .texto-ln{
+            background:rgb(101, 221, 101);
+            border-left: 6px solid var(--verde-escuro);
+            margin: 0 auto 1.5rem;
+            padding: 1rem 1.25rem;
+            width: 95%;
+            max-width: 1400px;
+            color:#333;
+            font-style: italic;
+        }
+      
+        /* --- DataTable em “cartão” branco para contraste --- */
+        #tblSugestoesWrapper,
+        #tblSugestoes{
+            width: 95%;
+            max-width: 1400px;
+            margin: auto;
+            background:var(--verde-escuro);
+            border-radius: 8px;
+            padding: .5rem 1rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+      
+        table.dataTable thead th{
+            background: var(--verde-escuro);
+            color:#fff;
+            border-bottom:0;
+        }
+      
+        table.dataTable tbody tr:nth-child(even) td{
+            background:#f3f8f3;          /* leve listrado */
+        }
+      
+        table.dataTable tbody tr:hover td{
+            background:#e0f0e0;
+        }
+      
+        /* Paginação */
+        .dataTables_wrapper .dataTables_paginate .paginate_button{
+            padding:.35rem .7rem;
+            margin:0 .12rem;
+            color:var(--verde-escuro)!important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current{
+            background:var(--verde-escuro)!important;
+            color:#fff!important;
+            border-radius:4px;
+        }
+      
+        /* campo de busca */
+        .dataTables_filter input{
+            border:1px solid var(--verde-escuro);
+            border-radius:4px;
+            padding:.35rem .5rem;
+        }
+      </style>
+      
+{% endblock %}
+
+{% block 'body' %}
+{% include 'navbar.html' %}
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=z1OEV896"></script>
+
+<h2 class="titulo-recomendacoes">🛒 Sugestão de Reposição</h2>
+
+{% if texto %}
+<div class="texto-ln">{{ texto }}</div>
+{% endif %}
+
+<table id="tblSugestoes" class="table table-striped table-bordered" style="width:95%; margin:auto;">
+  <thead>
+    <tr>
+      <th>Produto</th>
+      <th>Qtd&nbsp;Sugerida</th>
+      <th>Data&nbsp;Previsão</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in previsoes %}
+    <tr>
+      <td>{{ p.produto.nome_produto }}</td>
+      <td>{{ p.quantidade_sugerida }}</td>
+      <td>{{ p.data_previsao|date:'d/m/Y' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script>
+  $(function(){
+      $('#tblSugestoes').DataTable({
+          language:{url:'//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'},
+          pageLength:10,
+          lengthChange:false,
+          ordering:false
+      });
+  });
+</script>
+{% endblock %}

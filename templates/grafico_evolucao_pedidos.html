@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'head' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .chart-container {
+      width: 70%;
+      margin: 3rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  h1 {
+      text-align: center;
+      color: #004c22;
+      margin-bottom: 2rem;
+  }
+</style>
+{% endblock %}
+
+{% block 'body' %}
+{% include 'navbar.html' %}
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=z1OEV896"></script>
+
+<div class="chart-container">
+  <h1>Evolução Mensal dos Pedidos</h1>
+  <canvas id="evolucaoPedidos"></canvas>
+</div>
+
+<script>
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const data = JSON.parse('{{ data|escapejs }}');
+
+  const ctx = document.getElementById('evolucaoPedidos').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pedidos por Mês',
+        data: data,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Volume de Pedidos por Mês',
+          font: {
+            size: 18
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

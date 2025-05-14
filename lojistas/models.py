@@ -94,7 +94,7 @@ class Estoque(models.Model):
         verbose_name="Produto"
     )
     quantidade = models.IntegerField(
-        default=30, 
+        default=999, 
         validators=[MinValueValidator(0)], 
         verbose_name="Quantidade"
     )
@@ -104,6 +104,7 @@ class Estoque(models.Model):
         validators=[MinValueValidator(0)],
         verbose_name="Valor Unitário"
     )
+
     class Meta:
         verbose_name = 'Item de Estoque'
         verbose_name_plural = 'Itens de Estoque'
@@ -113,6 +114,28 @@ class Estoque(models.Model):
 
     def valor_total(self):
         return self.quantidade * self.valor
+
+    def set_valor_por_subcategoria(self):
+        precos = {
+            'PA': 17.00,
+            'PT': 8.00,
+            'PG': 10.90,
+            'PK': 6.00,
+            'M5L': 150.00,
+            'MA': 300.00,
+            'MT': 200.00,
+            'ME': 350.00,
+            'PMA': 62.00,
+            'PMT': 47.00,
+            'PME': 52.00,
+        }
+        self.valor = precos.get(self.produto.subcategoria, 0.00)
+        self.quantidade = 999
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.set_valor_por_subcategoria()
+        super().save(*args, **kwargs)
 
 class Vendas(models.Model):
     PROCESSO_CHOICES = [

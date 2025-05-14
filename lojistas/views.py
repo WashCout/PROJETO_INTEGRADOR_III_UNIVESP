@@ -6,6 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 import json
 from django.db import transaction
+from collections import Counter
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+from datetime import datetime
+
 
 @login_required
 def estoque_api(request):
@@ -106,15 +111,6 @@ def finalizar_compra(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
-def pedidos(request):
-    try:
-        lojista = request.user
-        vendas = Vendas.objects.filter(lojista__user=lojista)
-        return render(request, 'pedidos.html', {'lojista': lojista, 'vendas': vendas})
-    except Exception as e:
-        return redirect('index')
-
-@login_required
 def atualizar_status(request, venda_id):
     if request.method == 'POST':
         venda = get_object_or_404(Vendas, id=venda_id)
@@ -131,18 +127,38 @@ def atualizar_status(request, venda_id):
         return redirect('pedidos')
     return JsonResponse({'status': 'error', 'message': 'Método inválido'}, status=400)
 
+from collections import Counter
+
 @login_required
 def produtos_mais_pedidos(request):
-    # Gráfico Geral
-    produtos_quantidades_geral = Vendas.get_most_ordered_products()
-    produtos_geral = [produto for produto, quantidade in produtos_quantidades_geral]
-    quantidades_geral = [quantidade for produto, quantidade in produtos_quantidades_geral]
+    user = request.user
+    vendas = Vendas.objects.filter(processo='realizado')
 
-    # Gráfico por Usuário
-    lojista = request.user.lojista  # Assumindo que o `user` está relacionado com `Lojista`
-    produtos_quantidades_usuario = Vendas.get_most_ordered_products_by_user(lojista)
-    produtos_usuario = [produto for produto, quantidade in produtos_quantidades_usuario]
-    quantidades_usuario = [quantidade for produto, quantidade in produtos_quantidades_usuario]
+    # Vendas apenas do lojista logado, se for um lojista
+    if hasattr(user, 'lojista'):
+        vendas_usuario = vendas.filter(lojista=user.lojista)
+    else:
+        vendas_usuario = vendas.none()
+
+    def extrair_nomes(vendas_queryset):
+        nomes = []
+        for venda in vendas_queryset:
+            detalhes = json.loads(venda.detalhes)
+            for item in detalhes:
+                nomes.append(item['nome_produto'])
+        return nomes
+
+    # Geral
+    nomes_geral = extrair_nomes(vendas)
+    contagem_geral = Counter(nomes_geral).most_common(5)
+    produtos_geral = [item[0] for item in contagem_geral]
+    quantidades_geral = [item[1] for item in contagem_geral]
+
+    # Por lojista
+    nomes_usuario = extrair_nomes(vendas_usuario)
+    contagem_usuario = Counter(nomes_usuario).most_common(5)
+    produtos_usuario = [item[0] for item in contagem_usuario]
+    quantidades_usuario = [item[1] for item in contagem_usuario]
 
     return render(request, 'produtos_mais_pedidos.html', {
         'produtos_geral': json.dumps(produtos_geral),
@@ -150,3 +166,56 @@ def produtos_mais_pedidos(request):
         'produtos_usuario': json.dumps(produtos_usuario),
         'quantidades_usuario': json.dumps(quantidades_usuario),
     })
+
+@login_required
+def grafico_evolucao_pedidos(request):
+    user = request.user
+
+    if hasattr(user, 'lojista'):
+        vendas = Vendas.objects.filter(
+            processo='realizado',
+            lojista=user.lojista
+        )
+    else:
+        vendas = Vendas.objects.none()
+
+    vendas_por_mes = (
+        vendas.annotate(mes=TruncMonth('data'))
+              .values('mes')
+              .annotate(qtd=Count('id'))
+              .order_by('mes')
+    )
+
+    labels = [v['mes'].strftime('%b/%Y') for v in vendas_por_mes]
+    data = [v['qtd'] for v in vendas_por_mes]
+
+    return render(request, 'grafico_evolucao_pedidos.html', {
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
+    })
+
+@login_required
+def pedidos_tabela(request):
+    user = request.user
+
+    if hasattr(user, 'lojista'):
+        vendas = Vendas.objects.filter(lojista=user.lojista).order_by('-data')
+    else:
+        vendas = Vendas.objects.none()
+
+    lista_pedidos = []
+
+    for venda in vendas:
+        data_formatada = venda.data.strftime('%d/%m/%Y') if venda.data else '---'
+        detalhes = json.loads(venda.detalhes)
+        for item in detalhes:
+            lista_pedidos.append({
+                'produto': item['nome_produto'],
+                'quantidade': item['quantidade'],
+                'valor_unitario': item['valor_unitario'],
+                'valor_total': item['valor_total'],
+                'data': data_formatada,
+                'status': venda.processo
+            })
+
+    return render(request, 'tabela_pedidos.html', {'pedidos': lista_pedidos})

@@ -32,12 +32,8 @@
 {% endblock 'head' %}
 
 {% block 'body' %}
-<body>
-  <script src="https://code.responsivevoice.org/responsivevoice.js?key=5uFfkLlK"></script>
-  <body class="page-catalog">
-    <header class="bg-primary text-white py-2">
-      {% include 'navbar.html' %}
-    </header>
+{% include 'navbar.html' %}
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=z1OEV896"></script>
 
     <div class="container-fluid">
       <div class="chart-container">
@@ -155,5 +151,4 @@
         });
       });
     </script>
-</body>
 {% endblock %}
